@@ -8,8 +8,8 @@ using namespace std;
 
 vector<vector<int>> vigenere(26);
 
-void cifrador(string key, string message){
-    // colocando a senha do mesmo tamanho da messagem
+// colocando a senha do mesmo tamanho da messagem
+string equal_key(string message, string key){
     string aux = key;
     while(key.size() < message.size()){
         key += aux;
@@ -17,6 +17,11 @@ void cifrador(string key, string message){
     while(key.size() > message.size()){
         key = key.substr(0, key.size()-1);
     }
+    return key;
+}
+
+void cifrador(string key, string message){
+    key = equal_key(message, key);
 
     // cifra de acordo com a tabela de vigenere
     string msg = "";
@@ -27,7 +32,14 @@ void cifrador(string key, string message){
 }
 
 void decifrador(string key, string message){
-    
+    key = equal_key(message, key);
+
+    // decifra de acordo com a tabela de vigenere
+    string msg = "";
+    for(int i=0; i<message.size(); i++){
+        msg += ((((message[i]-'a')-(key[i]-'a')) + 26)%26) + 'a';
+    }
+    cout << "Mensagem decifrada: " << endl << msg << endl;
 }
 
 int32_t main(){
