@@ -6,15 +6,10 @@ using namespace std;
 #define all(x) x.begin(), x.end()
 #define pb push_back
 
-vector<vector<int>> vigenere(26);
-
 string treat_string(string s){
     transform(s.begin(), s.end(), s.begin(), ::tolower);
     return s;
 }
-
-// ABCD
-map<string, vector<int>> trigramas;
 
 string concat(vector<string> vs){
     string aux = "";
@@ -25,64 +20,118 @@ string concat(vector<string> vs){
     return aux;
 }
 
-void add_trigram(vector<string> data){
-    int count=0;
-
-    for(int i=0; i<data.size(); i++){
-        for(int j=0; j<data[i].size(); j++){
-            if(j>=data[i].size()-2) continue;
-            string s = data[i].substr(j, 3);
-            bool flag = false;
-            for(int k=0; k<s.size(); k++) if(s[k]<'a' or s[k]>'z') flag = true;
-            if(flag or s.size()!=3) continue;
-            trigramas[s].pb(count+j);
+string clean_text(vector<string> vs){
+    string aux = "";
+    for(int i=0; i<vs.size(); i++){
+        for(auto c : vs[i]){
+            if(c < 'a' or c >'z') continue;
+            aux += c;
         }
-        count += data[i].size()+1;
     }
+    return aux;
+}
 
-    map<int, int> divs;
-    map<int, bool> visited;
-    for(auto trig: trigramas){
-        vector<int> idx = trig.second;
-        for(int i=0; i<idx.size(); i++){
-            // primeira trigrama
-            for(int j=i+1; j<idx.size(); j++){
-                // outra trigrama
-                int dist = abs(idx[i] - idx[j]);
-                if(visited[dist]) continue;
-                visited[dist];
-                // Get divisors
-                for(int i=2; i*i<= dist; i++){
-                    if(dist%i==0){
-                        divs[i]++;
-                        int other = dist/i;
-                        if(other != i) divs[other]++;
-                    }
-                }
-                divs[dist]++;
+int key_size(vector<string> data){
+    int count=0;
+    string text = clean_text(data);
+    
+    map<string, set<int>> trigramas;
+    for(int i=0; i<text.size()-2; i++){
+        string tri_a = text.substr(i, 3);
+        for(int j=i+1; j<text.size()-2; j++){
+            string tri_b = text.substr(j, 3);
+            if(tri_a == tri_b){
+                trigramas[tri_a].insert(j-i);
             }
         }
     }
+
+    map<int, int> divs;
+    for(auto trig: trigramas){
+        set<int> distances = trig.second;
+        for(auto d: distances){
+            for(int i=2; i<=20; i++){
+                if(d%i == 0){
+                    divs[i]++;
+                }
+            }
+        }
+    }
+    vector<pair<int,int>> greaters;
     int maior = 0;
     int save = 0;
-    cout<<"FREQUENCIA "<<endl;
     for(auto it: divs){
-        cout<<it.first<<" "<<it.second<<endl;
-        if(it.second >= maior){
-            maior = it.second;
-            save = it.first;
+        greaters.pb(it);
+    }
+    auto ordena = [&] (pair<int,int> a, pair<int,int> b) {
+        return tie(a.second, a.first) > tie(b.second, b.first);
+    };
+    sort(greaters.begin(), greaters.end(), ordena);
+
+    cout<<"Possíveis tamanhos de chaves"<<endl;
+    for(auto it: greaters){
+        cout<<"Tamanho = "<<it.first<<" Ocorrências = "<<it.second<<endl;
+    }
+    int key_size = greaters[0].first;
+    cout<<"O tamanho escolhido foi: "<<greaters[0].first<<endl;
+    char opt;
+    cout<<"Você deseja escolher o seu próprio tamanho de chave? (s/n)"<<endl;
+    cin>>opt;
+    while(tolower(opt) != 's' and tolower(opt) != 'n'){
+        cout<<"Você deseja escolher o seu próprio tamanho de chave? (s/n)"<<endl;
+        cin>>opt;
+    }
+    if(opt == 's'){
+        cout<<"Escolha um tamanho entre 2 e 20"<<endl;
+        int tamanho; cin>>tamanho;
+        while(tamanho < 2 or tamanho >20){
+            cout<<"Escolha um tamanho entre 2 e 20"<<endl;
+            cin>>tamanho;
         }
+        key_size = tamanho;
     }
 
-    cout<<"TAMANHO QUE MAIS APARECE = "<<save<<endl;
+    return key_size;
+}
 
-    for(auto it: trigramas){
-        cout<<it.first<<" ";
-        for(int i=0; i<it.second.size(); i++){
-            cout<<it.second[i]<<" ";
+char get_letter(vector<double> probabilities, string lang){
+    vector<double> en = {8.167, 1.492, 2.782, 4.253, 12.702, 2.228, 2.015, 6.094, 6.966, 0.153, 0.772, 4.025, 2.406, 6.749, 7.507, 1.929, 0.095, 5.987, 6.327, 9.056, 2.758, 0.978, 2.360, 0.150, 1.974, 0.074};
+    vector<double> pt = {14.63, 1.04, 3.88, 4.99, 12.57, 1.02, 1.30, 1.28, 6.18, 0.40, 0.02, 2.78, 4.74, 5.05, 10.73, 2.52, 1.20, 6.53, 7.81, 4.34, 4.63, 1.67, 0.01, 0.21, 0.01, 0.47};
+
+    vector<double> prob = (lang == "en" ? en : pt);
+
+    double menor = 0x3f3f3f3f;
+    char c;
+    // shiftando e pegando a menor diferenca
+    for(int i=0; i<26; i++){
+        double diff = 0;
+        for(int j=0; j<26; j++){
+            diff += abs(probabilities[(i+j)%26] - prob[j]);
         }
-        cout<<endl;
+        if(diff < menor){
+            menor = diff;
+            c = i + 'a';
+        }
     }
+    return c;
+}
+string get_key(int key_size, string message, string language){
+    string key = "";
+    for(int i=0; i<key_size; i++){
+        int total = 0;
+        vector<int> freq(26);
+        for(int j=i; j<message.size(); j++){
+            freq[message[j]-'a']++;
+            total++;
+        }
+        vector<double> probabilities;
+        for(int c=0; c<26; c++){
+            double x = (double)(freq[c]/total)*100;
+            probabilities.pb(x);
+        }
+        key += get_letter(probabilities, language);
+    }
+    return key;
 }
 
 vector<string> get_input(string string_file){
@@ -127,7 +176,7 @@ void cifrador(string key, string message){
     string msg = "";
     for(int i=0; i<key.size(); i++){
         if(message[i] < 'a' or message[i] > 'z') msg += message[i];
-        else msg += vigenere[key[i] - 'a'][message[i] - 'a'] + 'a';
+        else msg += (((message[i]-'a') + key[i]-'a') % 26) + 'a';
     }
     cout << msg << endl;
 }
@@ -139,27 +188,13 @@ void decifrador(string key, string message){
     string msg = "";
     for(int i=0; i<message.size(); i++){
         if(message[i] < 'a' or message[i] > 'z') msg += message[i];
-        else msg += ((((message[i]-'a')-(key[i]-'a')) + 26)%26) + 'a';
+        else msg += ((((message[i]-'a')-(key[i]-'a')) + 26) % 26) + 'a';
     }
     cout << msg << endl;
 }
 
 int32_t main(){
     vector<string> dados = get_input("mensagem.txt");
-    add_trigram(dados);
-    //return 0;
-
-    // criando a cifra de vigenere
-    int cnt = 0;
-    for(int i=0; i<26; i++){
-        for(int j=cnt; j<26; j++){
-            vigenere[i].pb(j);
-        }
-        for(int j=0; j<cnt; j++){
-            vigenere[i].pb(j);
-        }
-        cnt++;
-    }
     
     int op = 0;
     while(op != 1 and op != 2){
@@ -175,6 +210,13 @@ int32_t main(){
         cout<<"Mensagem cifrada:"<<endl;
         cifrador(key, concat(dados));
     } else if(op == 2){
+        cout<<"Selecione uma língua: (en/pt)"<<endl;
+        string lang; cin>>lang;
+        while(treat_string(lang) != "en" and treat_string(lang)!="pt"){
+            cout<<"Selecione uma língua: (en/pt)"<<endl;
+            cin>>lang;
+        }
+        lang = treat_string(lang);
         op = 0;
         while(op != 1 and op != 2){
             cout << "Digite a opcao desejada:" << endl;
@@ -189,12 +231,13 @@ int32_t main(){
             cout<<"Mensagem decifrada:"<<endl;
             decifrador(key, concat(dados));
         }else{
-            
-            string key;
+            int lenght_key = key_size(dados);
+            cout<<"Tamanho da chave "<<lenght_key<<endl;
+            string key = get_key(lenght_key, clean_text(dados), lang);
+            cout<<"Chave estimada: "<<key<<endl;
             cout<<"Mensagem decifrada:"<<endl;
-            for(auto message: dados){
-                decifrador(key, message);
-            }
+            decifrador(key, concat(dados));
+            
         }
     }
 
