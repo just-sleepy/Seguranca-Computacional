@@ -68,12 +68,17 @@ int key_size(vector<string> data){
     };
     sort(greaters.begin(), greaters.end(), ordena);
 
+    if(greaters.empty()){
+        return 0;
+    }
     cout<<"Possíveis tamanhos de chaves"<<endl;
     for(auto it: greaters){
         cout<<"Tamanho = "<<it.first<<" Ocorrências = "<<it.second<<endl;
     }
+    
     int key_size = greaters[0].first;
     cout<<"O tamanho escolhido foi: "<<greaters[0].first<<endl;
+    if(key_size <= 3) cout<<"O tamanho da chave é considerado pequeno, recomendamos que escolha outro tamanho."<<endl;
     char opt;
     cout<<"Você deseja escolher o seu próprio tamanho de chave? (s/n)"<<endl;
     cin>>opt;
@@ -232,6 +237,10 @@ int32_t main(){
             decifrador(key, concat(dados));
         }else{
             int lenght_key = key_size(dados);
+            if(lenght_key == 0){
+                cout<<"Tamanho da amostra é muito pequeno."<<endl;
+                return 0;
+            }
             cout<<"Tamanho da chave "<<lenght_key<<endl;
             string key = get_key(lenght_key, clean_text(dados), lang);
             cout<<"Chave estimada: "<<key<<endl;
