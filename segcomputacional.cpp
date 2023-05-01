@@ -95,8 +95,8 @@ int key_size(vector<string> data){
 }
 
 char get_letter(vector<double> probabilities, string lang){
-    vector<double> en = {8.167, 1.492, 2.782, 4.253, 12.702, 2.228, 2.015, 6.094, 6.966, 0.153, 0.772, 4.025, 2.406, 6.749, 7.507, 1.929, 0.095, 5.987, 6.327, 9.056, 2.758, 0.978, 2.360, 0.150, 1.974, 0.074};
-    vector<double> pt = {14.63, 1.04, 3.88, 4.99, 12.57, 1.02, 1.30, 1.28, 6.18, 0.40, 0.02, 2.78, 4.74, 5.05, 10.73, 2.52, 1.20, 6.53, 7.81, 4.34, 4.63, 1.67, 0.01, 0.21, 0.01, 0.47};
+    vector<double> en = {0.08167,0.01492,0.02782,0.04253,0.12702, 0.02228, 0.02015, 0.06094, 0.06966, 0.00153,0.00772, 0.04025, 0.02406, 0.06749, 0.07507, 0.01929, 0.00095, 0.05987, 0.06327, 0.09056, 0.02758, 0.0097, 0.02360, 0.00150, 0.01974, 0.00074};
+    vector<double> pt = {0.1463, 0.0104, 0.0388, 0.0499, 0.1257, 0.0102, 0.0130, 0.0128, 0.0618, 0.0040, 0.0002, 0.0278, 0.0474, 0.0505,0.1073, 0.0252, 0.0120, 0.0653, 0.0781, 0.0434, 0.0463, 0.0167, 0.0001, 0.0021, 0.0001, 0.0047};
 
     vector<double> prob = (lang == "en" ? en : pt);
 
@@ -120,13 +120,13 @@ string get_key(int key_size, string message, string language){
     for(int i=0; i<key_size; i++){
         int total = 0;
         vector<int> freq(26);
-        for(int j=i; j<message.size(); j++){
+        for(int j=i; j<message.size(); j+= key_size){
             freq[message[j]-'a']++;
             total++;
         }
         vector<double> probabilities;
         for(int c=0; c<26; c++){
-            double x = (double)(freq[c]/total)*100;
+            double x = (freq[c]/(double)total);
             probabilities.pb(x);
         }
         key += get_letter(probabilities, language);
