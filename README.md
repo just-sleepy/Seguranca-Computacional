@@ -10,6 +10,8 @@ Autores: **Bruno Vargas de Souza** e **Gustavo Pierre Starling**
 
 # Descrição
 
+## Cifra de Vigenère
+
 O trabalho implementa a cifração, decifração, e a quebra da cifra ao achar uma chave.
 
 # Como usar
