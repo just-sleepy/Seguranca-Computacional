@@ -22,6 +22,6 @@ Rode:
 
 Caso precise recompilar:
 
-- ```g++  *.cpp -o main``
+- ```g++  *.cpp -o main```
 
 
