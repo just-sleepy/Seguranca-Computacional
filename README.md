@@ -18,10 +18,10 @@ Escreva a mensagem a ser cifrada/decifrada no arquivo ```message.txt```
 
 Rode: 
 
-- ```./out```
+- ```./main```
 
 Caso precise recompilar:
 
-- ```g++  *.cpp -o out```
+- ```g++  *.cpp -o main``
 
 
