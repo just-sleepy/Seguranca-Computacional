@@ -6,7 +6,7 @@ mensagem = bytes("teste mensagem".encode())
 mensagem = padding(mensagem)
 
 # chave de 16 bytes
-key = bytes("blue or red pill".encode())
+key = bytes("teste chave".encode())
 blocos_cipher = []
 
 for msg_block in split_blocks(mensagem):
