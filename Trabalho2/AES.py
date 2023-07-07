@@ -85,20 +85,14 @@ class AES:
 
         i = 1
         while len(key_columns) < (self.n_rounds + 1) * 4:
-            # Copy previous word.
             word = list(key_columns[-1])
 
-            # Perform schedule_core once every "row".
             if len(key_columns) % iteration_size == 0:
-                # Circular shift.
                 word.append(word.pop(0))
-                # Map to S-BOX.
                 word = [s_box[b] for b in word]
-                # XOR with first byte of R-CON, since the others bytes of R-CON are 0.
                 word[0] ^= rcon[i]
                 i += 1
 
-            # XOR with equivalent word from previous iteration.
             word = xor_bytes(word, key_columns[-iteration_size])
             key_columns.append(word)
 
