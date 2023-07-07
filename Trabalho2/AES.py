@@ -33,11 +33,14 @@ def matrix2bytes(matrix):
     """ Converts a 4x4 matrix into a 16-byte array.  """
     return bytes(sum(matrix, []))
 
+""" Galois Multiply """
 xtime = lambda a: (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
 
 
 def padding(msg):
     """ Preenche a mensagem para ficar com blocos de 16 bytes """
+    if len(msg) == 16: 
+        return bytes(msg)
     padding_len = 16 - (len(msg) % 16)
     padd = bytes([padding_len] * padding_len)
     return bytes(msg + padd)
