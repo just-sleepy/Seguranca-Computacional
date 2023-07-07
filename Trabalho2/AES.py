@@ -1,4 +1,5 @@
 from utils import s_box, inv_s_box, rcon
+from keys import generate_key
 
 def convert(msg, size):
     lista = []
@@ -34,7 +35,9 @@ def matrix2bytes(matrix):
 
 xtime = lambda a: (((a << 1) ^ 0x1B) & 0xFF) if (a & 0x80) else (a << 1)
 
+
 def padding(msg):
+    """ Preenche a mensagem para ficar com blocos de 16 bytes """
     padding_len = 16 - (len(msg) % 16)
     padd = bytes([padding_len] * padding_len)
     return bytes(msg + padd)
@@ -43,10 +46,14 @@ def split_blocks(msg, size=16):
     return [msg[i:i+16] for i in range(0, len(msg), size)]
 
 class AES:
-    def __init__(self):
+    """
+    key: default -> automatic generation
+    """
+    def __init__(self, key: list[int] = generate_key()):
+        self.key = bytes(key)
         self.n_rounds = 10
-    def cipher(self, msg, key):
-        keys = self.expand_key(key)
+    def cipher(self, msg):
+        keys = self.expand_key()
         blocks = bytes2matrix(msg)
 
         mat = self.add_round_key(blocks, keys[0])
@@ -63,8 +70,8 @@ class AES:
 
         return matrix2bytes(mat)
 
-    def decipher(self, msg, key):
-        keys = self.expand_key(key)
+    def decipher(self, msg):
+        keys = self.expand_key()
         blocks = bytes2matrix(msg)
 
         mat = self.add_round_key(blocks, keys[-1])
@@ -79,7 +86,8 @@ class AES:
         mat = self.add_round_key(blocks, keys[0])
         return matrix2bytes(mat)
     
-    def expand_key(self, key):
+    def expand_key(self):
+        key = self.key
         key_columns = bytes2matrix(key)
         iteration_size = len(key) // 4
 

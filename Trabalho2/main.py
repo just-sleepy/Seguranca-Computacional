@@ -1,20 +1,13 @@
 from AES import AES, split_blocks, padding
+from keys import generate_key
 
+# aes = AES(bytes("teste123".encode()))
 aes = AES()
 
-mensagem = bytes("teste mensagem".encode())
-mensagem = padding(mensagem)
+mensagem = padding(bytes("mensagem a ser cifrada".encode()))
 
-# chave de 16 bytes
-key = bytes("blue or red pill".encode())
-blocos_cipher = []
-
-for msg_block in split_blocks(mensagem):
-    blocos_cipher.append(aes.cipher(msg_block, key))
-
-blocos_decipher = []
-for block in blocos_cipher:
-    blocos_decipher.append(aes.decipher(block, key))
+blocos_cipher = [aes.cipher(block) for block in split_blocks(mensagem)]
+blocos_decipher = [aes.decipher(block) for block in blocos_cipher]
 
 print(blocos_cipher)
 print(blocos_decipher)
